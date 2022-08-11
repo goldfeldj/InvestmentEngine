@@ -10,6 +10,7 @@ import java.util.stream.Collectors
 import kotlin.collections.HashMap
 import kotlin.math.roundToLong
 
+// TODO: Cap the database size
 @Repository
 class WordDatabase {
     private val database = HashMap<String, Long>()
@@ -71,7 +72,7 @@ class WordDatabase {
         if (topFiveWords.isEmpty()) {
             return listOf()
         }
-        
+
         val topFiveWordsSorted = topFiveWords.toList().sortedBy { (k, v) -> v }
         val leastOccurringWordCount = topFiveWordsSorted.first().second
         val mostOccurringWordCount = topFiveWordsSorted.last().second
