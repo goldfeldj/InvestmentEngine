@@ -67,8 +67,8 @@ class WordDatabase {
     // If we switch to a large/dynamic number, a different strategy should be considered, e.g a sorted queue data-structure.
     private fun computeHistogram(): List<WordRank> {
         val topFiveWordsSortedSet = topFiveWordsQueue.toSortedSet(WordCountComparator())
-        val leastOccurringWordCount = topFiveWordsSortedSet.last().count
-        val mostOccurringWordCount = topFiveWordsSortedSet.first().count
+        val leastOccurringWordCount = topFiveWordsSortedSet.first().count
+        val mostOccurringWordCount = topFiveWordsSortedSet.last().count
 
         // Should <rankFactor> be changed to (<topFiveWordsSortedSet>.size - 1) when there are less than 5 words?
         return topFiveWordsSortedSet.map {

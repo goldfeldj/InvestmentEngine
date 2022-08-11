@@ -11,6 +11,7 @@ class WordCountComparator: Comparator<WordCount> {
             throw IllegalArgumentException("one or more of the arguments are null")
         }
 
-        return (o1.count - o2.count).sign
+        return if (o1.count - o2.count <= 0) -1
+        else 1
     }
 }
