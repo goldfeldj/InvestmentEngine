@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RestController
 import cyolo.service.WordCountService
+import cyolo.words_engine.WordRank
 import org.springframework.beans.factory.annotation.Autowired
 import kotlin.concurrent.thread
 
@@ -20,27 +21,19 @@ fun main(args: Array<String>) {
 @RestController
 class MessageResource {
 	@Autowired
-	lateinit var service: WordCountService
+	lateinit var wordCountService: WordCountService
 
 	@GetMapping
-	fun index(): List<Message> = listOf(
-		Message("1", "Hello!"),
-		Message("2", "Bonjour!"),
-		Message("3", "Privet!"),
-	)
+	fun getHistogram(): List<WordRank> =
+		wordCountService.getHistogram()
 
 	@PostMapping
 	fun post(@RequestBody payload: WordsPayload) {
 		thread {
-			service.postWords(payload.words)
+			wordCountService.postWords(payload.words)
 		}
 	}
 }
-
-data class Message(
-	val id: String?,
-	val text: String
-	)
 
 data class WordsPayload(
 	val words: String
