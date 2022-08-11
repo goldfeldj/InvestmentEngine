@@ -1,8 +1,8 @@
-package cyolo.cyolo.service
+package cyolo.service
 
 import kotlinx.coroutines.launch
-import cyolo.cyolo.words_engine.WordDatabase
-import cyolo.cyolo.words_engine.WordRank
+import cyolo.words_engine.WordDatabase
+import cyolo.words_engine.WordRank
 import kotlinx.coroutines.runBlocking
 import org.springframework.stereotype.Service
 

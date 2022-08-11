@@ -1,4 +1,4 @@
-package cyolo.cyolo.words_engine
+package cyolo.words_engine
 
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock

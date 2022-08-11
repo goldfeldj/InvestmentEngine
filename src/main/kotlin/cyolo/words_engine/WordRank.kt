@@ -1,4 +1,4 @@
-package cyolo.cyolo.words_engine
+package cyolo.words_engine
 
 class WordRank(
     value: String,
