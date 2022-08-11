@@ -1,14 +1,14 @@
-package service
+package cyolo.cyolo.service
 
 import kotlinx.coroutines.launch
-import words_engine.WordDatabase
-import words_engine.WordRank
+import cyolo.cyolo.words_engine.WordDatabase
+import cyolo.cyolo.words_engine.WordRank
 import kotlinx.coroutines.runBlocking
 import org.springframework.stereotype.Service
 
 @Service
 class WordCountService(
-    val wordDatabase: WordDatabase = WordDatabase()
+    val wordDatabase: WordDatabase
 ) {
     init {
         runBlocking {

@@ -1,4 +1,4 @@
-package words_engine
+package cyolo.cyolo.words_engine
 
 class WordCount(
     value: String,

@@ -1,7 +1,8 @@
-package words_engine
+package cyolo.cyolo.words_engine
 
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import org.springframework.stereotype.Repository
 import java.util.*
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.atomic.AtomicInteger
@@ -9,6 +10,7 @@ import java.util.stream.Collectors
 import kotlin.collections.HashMap
 import kotlin.math.roundToLong
 
+@Repository
 class WordDatabase {
     private val database = HashMap<String, Long>()
     private val topFiveWordsQueue = PriorityQueue<WordCount>()
