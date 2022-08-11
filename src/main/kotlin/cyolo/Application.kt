@@ -7,6 +7,8 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RestController
 import cyolo.service.WordCountService
+import org.springframework.beans.factory.annotation.Autowired
+import kotlin.concurrent.thread
 
 @SpringBootApplication
 class Application
@@ -16,9 +18,9 @@ fun main(args: Array<String>) {
 }
 
 @RestController
-class MessageResource(
-	val service: WordCountService
-	) {
+class MessageResource {
+	@Autowired
+	lateinit var service: WordCountService
 
 	@GetMapping
 	fun index(): List<Message> = listOf(
@@ -28,8 +30,10 @@ class MessageResource(
 	)
 
 	@PostMapping
-	fun post(@RequestBody message: Message) {
-		service.postWords(message.text)
+	fun post(@RequestBody payload: WordsPayload) {
+		thread {
+			service.postWords(payload.words)
+		}
 	}
 }
 
@@ -37,3 +41,7 @@ data class Message(
 	val id: String?,
 	val text: String
 	)
+
+data class WordsPayload(
+	val words: String
+)
