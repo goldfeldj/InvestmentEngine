@@ -16,7 +16,6 @@ class WordDatabase {
     private val topFiveWords = TreeMap<String, Long>()
     private val operationQueue = ConcurrentLinkedQueue<Map<String, Long>>()
 
-    private var isConsuming = false
     private val pendingHistogramRequestsSemaphore = AtomicInteger()
     private val lock = Mutex()
 
@@ -49,12 +48,11 @@ class WordDatabase {
     suspend fun consume() {
         while (true) {
             lock.withLock {
-                isConsuming = true
-                while (operationQueue.isNotEmpty() && pendingHistogramRequestsSemaphore.get() == 0) {
-                    val wordCounts = operationQueue.remove()
-                    updateDatabases(wordCounts)
+                while (pendingHistogramRequestsSemaphore.get() == 0) {
+                    operationQueue.poll()?.let {
+                        updateDatabases(it)
+                    }
                 }
-                isConsuming = false
             }
         }
     }
@@ -70,6 +68,10 @@ class WordDatabase {
     // The sorting should be cheap for small constants, e.g. five words.
     // If we switch to a large/dynamic number, a different strategy should be considered, e.g a sorted queue data-structure.
     private fun computeHistogram(): List<WordRank> {
+        if (topFiveWords.isEmpty()) {
+            return listOf()
+        }
+        
         val topFiveWordsSorted = topFiveWords.toList().sortedBy { (k, v) -> v }
         val leastOccurringWordCount = topFiveWordsSorted.first().second
         val mostOccurringWordCount = topFiveWordsSorted.last().second
