@@ -8,23 +8,7 @@ import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.stream.Collectors
 import kotlin.collections.HashMap
-import kotlin.math.ceil
-
-/*
-*** Note about the task description ***
-* The following example is given in the task:
-* " When the dateset is ball ball ball ball eggs eggs pool pool wild daily The result would be:
-* ball 5
-* eggs 2
-* pool 2
-* wild 1
-* daily 1 "
-*
-* This is inconsistent (and is not maintained under the ranking-function supplied in the description).
-* It should either be 1, 1, 2, 2, 3 - i.e "condense" the ranks to be consecutive, or:
-* 1, 1, 3, 3, 5, i.e "spread" them out.
-* I chose the latter.
- */
+import kotlin.math.roundToLong
 
 @Repository
 class WordDatabase {
@@ -53,7 +37,7 @@ class WordDatabase {
                 topFiveWords[word] = newCount
             } else topFiveWords[word]?.let {
                 topFiveWords[word] = newCount
-            } ?: topFiveWords.firstEntry().let { minEntry ->
+            } ?: topFiveWords.lastEntry().let { minEntry ->
                 if (newCount > minEntry.value) {
                     topFiveWords.remove(minEntry.key)
                     topFiveWords[word] = newCount
@@ -83,7 +67,7 @@ class WordDatabase {
     }
 
 
-    // The sorting should be cheap for small constants, e.g five words.
+    // The sorting should be cheap for small constants, e.g. five words.
     // If we switch to a large/dynamic number, a different strategy should be considered, e.g a sorted queue data-structure.
     private fun computeHistogram(): List<WordRank> {
         val topFiveWordsSorted = topFiveWords.toList().sortedBy { (k, v) -> v }
@@ -94,7 +78,7 @@ class WordDatabase {
         return topFiveWordsSorted.map {
             WordRank(
                 value = it.first,
-                rank = ceil((rankFactor * (it.second - leastOccurringWordCount)) / (mostOccurringWordCount - 1)).toLong() + 1
+                rank = ((rankFactor * (it.second - leastOccurringWordCount)) / (mostOccurringWordCount - 1)).roundToLong() + 1
             )
         }
     }
