@@ -1,38 +1,38 @@
-package cyolo.service
-
-import kotlinx.coroutines.launch
-import cyolo.words_engine.WordDatabase
-import cyolo.words_engine.WordRank
-import kotlinx.coroutines.runBlocking
-import org.springframework.stereotype.Service
-import kotlin.concurrent.thread
-
-@Service
-class WordCountService(
-    val wordDatabase: WordDatabase
-) {
-    init {
-        thread {
-            runBlocking {
-                launch {
-                    wordDatabase.consume()
-                }
-            }
-        }
-    }
-    fun postWords(words: String) {
-        wordDatabase.produce(words)
-    }
-
-    fun getHistogram(): List<WordRank> {
-        lateinit var histogram: List<WordRank>
-
-        runBlocking {
-            launch {
-                histogram = wordDatabase.getHistogram()
-            }
-        }
-
-        return histogram
-    }
-}
+//package cyolo.service
+//
+//import kotlinx.coroutines.launch
+//import cyolo.words_engine.WordDatabase
+//import cyolo.words_engine.WordRank
+//import kotlinx.coroutines.runBlocking
+//import org.springframework.stereotype.Service
+//import kotlin.concurrent.thread
+//
+//@Service
+//class WordCountService(
+//    val wordDatabase: WordDatabase
+//) {
+//    init {
+//        thread {
+//            runBlocking {
+//                launch {
+//                    wordDatabase.consume()
+//                }
+//            }
+//        }
+//    }
+//    fun postWords(words: String) {
+//        wordDatabase.produce(words)
+//    }
+//
+//    fun getHistogram(): List<WordRank> {
+//        lateinit var histogram: List<WordRank>
+//
+//        runBlocking {
+//            launch {
+//                histogram = wordDatabase.getHistogram()
+//            }
+//        }
+//
+//        return histogram
+//    }
+//}
