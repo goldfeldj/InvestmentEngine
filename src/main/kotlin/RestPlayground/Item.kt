@@ -1,4 +1,4 @@
-package PointFive
+package RestPlayground
 
 import kotlinx.serialization.Serializable
 

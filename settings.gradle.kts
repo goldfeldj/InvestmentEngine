@@ -1,1 +1,1 @@
-rootProject.name = "InterviewSandbox"
+rootProject.name = "MySandbox"

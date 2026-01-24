@@ -1,4 +1,4 @@
-# PointFive Ktor Data Processing API Boilerplate
+# RestPlayground Ktor Data Processing API Boilerplate
 
 ## Overview
 

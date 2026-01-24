@@ -1,4 +1,4 @@
-package PointFive
+package RestPlayground
 
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicInteger
@@ -8,6 +8,8 @@ class InMemoryItemRepository : ItemRepository {
     private val idCounter = AtomicInteger(1)
 
     override suspend fun getAll(): List<Item> = items.values.toList()
+
+    override suspend fun getBySubstring(sub: String): List<Item> = items.values.filter { it.name.contains(sub) }
 
     override suspend fun getById(id: Int): Item? = items[id]
 

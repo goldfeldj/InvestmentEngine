@@ -1,7 +1,8 @@
-package PointFive
+package RestPlayground
 
 interface ItemRepository {
     suspend fun getAll(): List<Item>
+    suspend fun getBySubstring(sub: String): List<Item>
     suspend fun getById(id: Int): Item?
     suspend fun add(item: Item): Item
     suspend fun update(id: Int, item: Item): Boolean

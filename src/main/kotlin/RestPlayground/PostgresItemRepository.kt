@@ -1,9 +1,10 @@
-package PointFive
+package RestPlayground
 
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
+import java.util.Collections.emptyList
 
 object Items : Table() {
     val id = integer("id").autoIncrement()
@@ -21,6 +22,11 @@ class PostgresItemRepository(database: Database) : ItemRepository {
 
     override suspend fun getAll(): List<Item> = newSuspendedTransaction {
         Items.selectAll().map { Item(it[Items.id], it[Items.name], it[Items.value]) }
+    }
+
+    override suspend fun getBySubstring(sub: String): List<Item> {
+        TODO("Not yet implemented")
+        return emptyList()
     }
 
     override suspend fun getById(id: Int): Item? = newSuspendedTransaction {
