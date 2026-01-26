@@ -56,6 +56,8 @@ dependencies {
 	runtimeOnly("com.h2database:h2")
 	implementation("org.postgresql:postgresql:42.7.3")
 
+	implementation("org.jsoup:jsoup:1.18.1")
+
 	testImplementation(kotlin("test"))
 }
 

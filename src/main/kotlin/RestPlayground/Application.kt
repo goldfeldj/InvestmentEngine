@@ -9,12 +9,43 @@ import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.routing.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
+import kotlinx.coroutines.runBlocking
+import java.io.File
+import java.util.concurrent.ConcurrentHashMap
 
-fun main() {
-//    embeddedServer(Netty, port = 8080, module = Application::module).start(wait = true)
-    val x = 4
-    print(x)
+// TODO: Need to add tests
+fun main() = runBlocking {
+    // Change these to relative to project root
+    val wordBankPath = "/Users/jonathangoldfeld/Dev/MySandbox/src/main/resources/bank_of_words.txt"
+    val urlsPath = "/Users/jonathangoldfeld/Dev/MySandbox/src/main/resources/urls.txt"
+
+    // Stage 1: Load
+    val loadService = LoadService()
+    val validWords = loadService.loadValidWordBank(wordBankPath)
+    val globalCounts = ConcurrentHashMap<String, Int>()
+
+    // Stage 2: Crawl
+    val crawlingService = CrawlingService(validWords, globalCounts)
+    val urls = File(urlsPath).readLines()
+    crawlingService.crawlAll(urls)
+
+    // Stage 3: Alert
+    val alertService = AlertService(globalCounts)
+    alertService.outputTop10()
 }
+
+//fun main() {
+////    embeddedServer(Netty, port = 8080, module = Application::module).start(wait = true)
+//
+//    val loadService = LoadService()
+//    // In your main orchestrator:
+//    val wordBank = loadService.loadValidWordBank("/path/to/bank.txt")
+//
+//// Initialize counts only for valid words to avoid growing the map with "junk" from the web
+//    val globalWordCounts = ConcurrentHashMap<String, Int>().apply {
+//        wordBank.forEach { put(it, 0) }
+//    }
+//}
 
 fun Application.module() {
     install(ContentNegotiation) {
