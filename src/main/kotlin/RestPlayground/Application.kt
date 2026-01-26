@@ -12,6 +12,22 @@ import io.ktor.server.response.*
 import kotlinx.coroutines.runBlocking
 import java.io.File
 import java.util.concurrent.ConcurrentHashMap
+/*
+Results from local run (took a few minutes):
+{
+  "the": 8049,
+  "and": 4662,
+  "The": 2716,
+  "you": 2549,
+  "that": 2022,
+  "with": 1372,
+  "our": 1327,
+  "your": 914,
+  "laptop": 868,
+  "gaming": 848
+}
+
+ */
 
 // TODO: Need to add tests
 fun main() = runBlocking {
