@@ -1,0 +1,60 @@
+metadata:
+  base_currency: "ILS"           # Total net worth reported in this currency
+  default_ticker_currency: "USD" # Fallback if a ticker has no currency specified
+
+# Cash liquidity across different regions
+wallets:
+  - currency: "ILS"
+    amount: 50000.00
+  - currency: "USD"
+    amount: 12500.00
+  - currency: "GEL"
+    amount: 1500.00
+
+# Taxable brokerage accounts
+private_portfolio:
+  - ticker: "NVDA"
+    shares: 45
+    cost_basis: 110.50
+    # currency: "USD" # (Optional: defaults to metadata.default_ticker_currency)
+  - ticker: "ICL.TA"
+    shares: 1000
+    cost_basis: 15.40
+    currency: "ILS"
+
+# Retirement funds with track/proxy modeling
+pension_funds:
+  - name: "Altshuler Shaham S&P 500"
+    current_value: 280000.00
+    current_path_id: "SP500_TRACK"
+    possible_paths:
+      - id: "SP500_TRACK"
+        structure: { "foreign_equity": 1.0 }
+        proxy_ticker: "VOO"
+      - id: "LOW_RISK_BONDS"
+        structure: { "bonds": 0.8, "cash": 0.2 }
+        proxy_ticker: "BND"
+
+# Digital assets / Crypto
+digital_assets:
+  - ticker: "BTC"
+    amount: 0.45
+    currency: "USD"
+  - ticker: "ETH"
+    amount: 2.5
+    currency: "USD"
+
+# Real Estate (Fixed Assets)
+real_estate:
+  - id: "batumi_apartment_01"
+    currency: "USD"
+    estimated_value: 95000.00
+    allow_actions: false # Prevents the AI from suggesting to 'Sell' your home
+
+# Human Capital (Future Earnings as an Asset)
+human_capital:
+  - id: "tech_career_main"
+    annual_income: 140000.00
+    currency: "USD"
+    years_to_retirement: 22
+    industry: "Cybersecurity"
