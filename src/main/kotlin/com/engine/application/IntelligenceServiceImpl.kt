@@ -1,9 +1,11 @@
-package com.engine.service
+package com.engine.application
 
 import com.engine.model.GlobalPortfolio
 import com.engine.model.OrchestrationConfig
 import com.engine.model.PhaseConfig
 import com.engine.model.Recommendation
+import com.engine.service.IntelligenceService
+import com.engine.service.ModelDispatcher
 import org.springframework.stereotype.Service
 import java.time.LocalDate
 
