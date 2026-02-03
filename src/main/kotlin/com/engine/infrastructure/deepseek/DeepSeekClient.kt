@@ -3,6 +3,7 @@ package com.engine.infrastructure.deepseek
 import com.openai.client.OpenAIClient
 import com.openai.models.ChatModel
 import com.openai.models.chat.completions.ChatCompletionCreateParams
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Component
 
 /**
@@ -11,7 +12,7 @@ import org.springframework.stereotype.Component
  * but configure this specific bean with the DeepSeek Base URL in AppConfig.
  */
 @Component
-class DeepSeekClient(private val deepSeekClient: OpenAIClient) {
+class DeepSeekClient(@Qualifier("deepSeekSdkClient") private val client: OpenAIClient) {
 
     fun prompt(modelName: String, promptText: String, depth: Int): String {
 
@@ -27,7 +28,7 @@ class DeepSeekClient(private val deepSeekClient: OpenAIClient) {
             .build()
 
         return try {
-            val completion = deepSeekClient.chat().completions().create(params)
+            val completion = client.chat().completions().create(params)
             completion.choices().firstOrNull()?.message()?.content()?.get()
                 ?: throw IllegalStateException("DeepSeek returned an empty response.")
         } catch (e: Exception) {

@@ -4,17 +4,25 @@ import com.engine.model.*
 import java.time.LocalDate
 
 /**
- * Interfaces with AI models to perform research and sentiment analysis.
+ * Core domain service for executing the multi-phase AI Investment Audit.
  */
 interface IntelligenceService {
 
     /**
-     * Phase 1: Aggregates macro trends from multiple models (Moderated/Consensus).
+     * Phase 1 (Consensus): Aggregates macro trends from multiple models.
+     * Often used as the foundational "Macro Context" for subsequent audit phases.
      */
     fun getMacroConsensus(date: LocalDate, config: PhaseConfig?): String
 
     /**
-     * Phase 2: Audits the portfolio against the macro consensus.
+     * Phase 2 (Orchestration): Executes the full Audit Chain.
+     * Internally coordinates the Auditor, Anti-Thesis (Red Team), and Chairman.
+     *
+     * @param portfolio The global portfolio to be analyzed.
+     * @param macroContext The macro narrative (usually from Phase 1).
+     * @param date The strict date lock for data analysis.
+     * @param config Configuration for model selection and compute depth per phase.
+     * @return A list of validated, synthesized investment recommendations.
      */
     fun runAuditChain(
         portfolio: GlobalPortfolio,
@@ -24,12 +32,14 @@ interface IntelligenceService {
     ): List<Recommendation>
 
     /**
-     * Phase 3: Critically challenges the audit results (Red Teaming).
+     * Phase 3 (Red Teaming): Critically challenges a specific set of recommendations.
+     * Standalone access to the adversarial critique logic.
      */
     fun generateAntiThesis(thesis: List<Recommendation>, depth: Int): String
 
     /**
-     * Final Phase: Synthesizes Thesis and Anti-Thesis into the final Dilemma Report.
+     * Final Synthesis: Reconciles the primary Audit Thesis and the Anti-Thesis critique.
+     * Produces the high-level executive report for the user.
      */
     fun reconcileFinalStrategy(thesis: List<Recommendation>, antiThesis: String): StrategyReport
 }

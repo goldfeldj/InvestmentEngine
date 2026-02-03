@@ -7,5 +7,10 @@ interface ModelDispatcher {
      * @param prompt The full system + user instruction.
      * @param depth The 1-10 scale for analytical rigor.
      */
-    fun dispatch(model: String, prompt: String, depth: Int): String
+    fun dispatch(
+        model: String,
+        prompt: String,
+        depth: Int,
+        responseSchema: Class<*>? = null
+    ): String
 }
