@@ -15,6 +15,10 @@ class YamlParserService {
         registerModule(KotlinModule.Builder().build())
         registerModule(com.fasterxml.jackson.datatype.jsr310.JavaTimeModule())
         setPropertyNamingStrategy(com.fasterxml.jackson.databind.PropertyNamingStrategies.SNAKE_CASE)
+        // Ensure we don't write nulls to the YAML to keep it clean
+        setSerializationInclusion(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL)
+        // Important: Disable writing dates as timestamps so we get "2026-02-03"
+        configure(com.fasterxml.jackson.databind.SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
     }
 
     /**
@@ -45,5 +49,11 @@ class YamlParserService {
     final inline fun <reified T> parseConfig(filePath: String): T {
         val file = File(filePath)
         return mapper.readValue(file)
+    }
+
+    fun savePortfolio(portfolio: GlobalPortfolio, destinationPath: String) {
+        val file = File(destinationPath)
+        file.parentFile?.mkdirs() // Create directories if they don't exist
+        mapper.writeValue(file, portfolio)
     }
 }

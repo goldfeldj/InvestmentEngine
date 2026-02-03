@@ -1,6 +1,7 @@
 package com.engine.service
 
 import com.engine.model.*
+import java.time.LocalDate
 
 /**
  * Interfaces with AI models to perform research and sentiment analysis.
@@ -10,12 +11,17 @@ interface IntelligenceService {
     /**
      * Phase 1: Aggregates macro trends from multiple models (Moderated/Consensus).
      */
-    fun getMacroConsensus(depth: Int): String
+    fun getMacroConsensus(date: LocalDate, config: PhaseConfig?): String
 
     /**
      * Phase 2: Audits the portfolio against the macro consensus.
      */
-    fun auditPortfolio(portfolio: GlobalPortfolio, macroContext: String, depth: Int): List<Recommendation>
+    fun runAuditChain(
+        portfolio: GlobalPortfolio,
+        macroContext: String,
+        date: LocalDate,
+        config: OrchestrationConfig
+    ): List<Recommendation>
 
     /**
      * Phase 3: Critically challenges the audit results (Red Teaming).

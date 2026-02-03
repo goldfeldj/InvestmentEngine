@@ -14,7 +14,8 @@ data class GlobalPortfolio(
     val pensionFunds: List<PensionFund>? = null,
     val digitalAssets: List<DigitalAsset>? = null,
     val realEstate: List<RealEstateAsset>? = null,
-    val humanCapital: List<IncomeAsset>? = null
+    val humanCapital: List<IncomeAsset>? = null,
+    val asOfDate: LocalDate? = null
 )
 
 data class PortfolioMetadata(
