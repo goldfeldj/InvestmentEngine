@@ -23,14 +23,19 @@ class AuditorServiceImpl(private val dispatcher: ModelDispatcher): AuditorServic
 
         val systemInstruction = """
         STRICT DATE LOCK: Today is $date.
-    You are a Senior Portfolio Auditor. Analyze the provided portfolio and macro context.
+        ROLE: Senior Portfolio Auditor. 
+        TASK: Analyze the portfolio against the macro context.
     
-    [COMPUTE ALLOCATION: $depth/10]
-    - Scale your analytical rigor linearly based on this $depth/10 assignment. 
-    - As depth increases, provide higher granularity in your Chain-of-Thought and cross-reference more market variables.
-    - Efficiency: Conclude all processing within a 10-minute window, prioritizing insight density over sheer verbosity.
+        [COMPUTE ALLOCATION: $depth/10]
+        - Scale your analytical rigor linearly based on this $depth/10 assignment. 
+        - As depth increases, provide higher granularity in your Chain-of-Thought and cross-reference more market variables.
+        - Efficiency: Conclude all processing within a 10-minute window, prioritizing insight density over sheer verbosity.
     
-    Deep-dive into the assets and justify every move based only on data available on $date.
+        Deep-dive into the assets and justify every move based only on data available on $date.
+        OUTPUT REQUIREMENTS:
+        1. Executive Summary: 2-sentence 'State of the Union'.
+        2. Asset Deep-Dive: Justify every 'Hold/Sell/Buy' with data from $date.
+        3. Critical Vulnerabilities: Explicitly list 3 reasons this portfolio might fail.
     """.trimIndent()
 
         val userPrompt = """
@@ -38,6 +43,6 @@ class AuditorServiceImpl(private val dispatcher: ModelDispatcher): AuditorServic
         Macro Context: $macro
     """.trimIndent()
 
-        return dispatcher.dispatch(model, systemInstruction + "\n" + userPrompt, config?.researchDepth ?: 5)
+        return dispatcher.dispatch(model, systemInstruction + "\n" + userPrompt, config?.researchDepth ?: depth)
     }
 }
