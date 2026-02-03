@@ -62,9 +62,9 @@ dependencies {
 
 	// Core Jackson and Kotlin support
 	implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.17.2")
-
 	// The missing YAML dataformat extension
 	implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.17.2")
+	implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.17.2")
 }
 
 //dependencies {

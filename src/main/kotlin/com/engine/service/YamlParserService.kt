@@ -13,6 +13,7 @@ class YamlParserService {
 
     val mapper = ObjectMapper(YAMLFactory()).apply {
         registerModule(KotlinModule.Builder().build())
+        registerModule(com.fasterxml.jackson.datatype.jsr310.JavaTimeModule())
         setPropertyNamingStrategy(com.fasterxml.jackson.databind.PropertyNamingStrategies.SNAKE_CASE)
     }
 

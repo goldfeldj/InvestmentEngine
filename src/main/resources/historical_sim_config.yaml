@@ -7,6 +7,26 @@ simulation_setup:
   # If provided (e.g., "WEEKLY"), the engine simulates trades at every interval
   tick_interval: "WEEKLY"
 
+# This replicates the structure of assets.yaml for a isolated test run
+initial_assets:
+  metadata:
+    base_currency: "ILS"
+    default_ticker_currency: "USD"
+  wallets:
+    - currency: "USD"
+      amount: 10000.00
+  private_portfolio:
+    - ticker: "NVDA"
+      shares: 10
+      cost_basis: 450.00 # Price back in Nov 2023
+    - ticker: "ICL.TA"
+      shares: 500
+      cost_basis: 16.00
+  digital_assets:
+    - ticker: "BTC"
+      amount: 0.1
+      currency: "USD"
+
 # Used for the "Performance vs Benchmark" metric in the final report
 benchmarks:
   - "SPY"
