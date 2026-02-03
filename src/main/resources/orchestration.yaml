@@ -17,7 +17,7 @@ phases:
     # 1. Gemini-1.5-Flash (High free-tier quota, huge context window for reading YAMLs)
     # 2. DeepSeek-V3 (Highly competitive open-weight model for technical audit tasks)
 
-  anti_thesis:
+  anti_thesis_phase:
     description: "The 'Red Team' skeptic phase."
     models: ["CLAUDE_3_5"]
     research_depth: 9
@@ -25,7 +25,7 @@ phases:
     # 1. Command R+ (Cohere's model, optimized for RAG and logical skepticism)
     # 2. Qwen-2.5-72B-Instruct (Exceptional at finding flaws and detailed reasoning)
 
-  chairman:
+  chairman_phase:
     description: "The final decision and dilemma synthesis."
     models: ["GEMINI_3_FLASH"]
     research_depth: 6

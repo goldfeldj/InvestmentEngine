@@ -55,7 +55,7 @@ class ChairmanServiceImpl(private val dispatcher: ModelDispatcher): ChairmanServ
         Anti-Thesis Critique: $critique
     """.trimIndent()
 
-        val rawJson = dispatcher.dispatch(model, "$systemInstruction\n$userPrompt", depth)
+        val rawJson = dispatcher.dispatch(model, "$systemInstruction\n$userPrompt", depth, StrategyReport::class.java)
 
         return parseStrategyReport(rawJson)
     }
