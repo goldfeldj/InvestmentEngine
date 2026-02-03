@@ -13,7 +13,12 @@ class ModelDispatcherImpl(
     private val deepSeekClient: DeepSeekClient
 ) : ModelDispatcher {
 
-    override fun dispatch(model: String, prompt: String, depth: Int): String {
+    override fun dispatch(
+        model: String,
+        prompt: String,
+        depth: Int,
+        responseSchema: Class<*>?
+    ): String {
         val upperModel = model.uppercase()
 
         return try {
@@ -28,7 +33,7 @@ class ModelDispatcherImpl(
                 // OpenAI o-series and GPT-5
                 upperModel.startsWith("O") || upperModel.contains("GPT") -> {
                     val actualModelId = mapToOpenAiId(upperModel)
-                    openAiClient.prompt(actualModelId, prompt, depth)
+                    openAiClient.prompt(actualModelId, prompt, depth, responseSchema)
                 }
 
                 // DeepSeek V4 / R1

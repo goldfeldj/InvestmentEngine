@@ -30,16 +30,4 @@ interface IntelligenceService {
         date: LocalDate,
         config: OrchestrationConfig
     ): List<Recommendation>
-
-    /**
-     * Phase 3 (Red Teaming): Critically challenges a specific set of recommendations.
-     * Standalone access to the adversarial critique logic.
-     */
-    fun generateAntiThesis(thesis: List<Recommendation>, depth: Int): String
-
-    /**
-     * Final Synthesis: Reconciles the primary Audit Thesis and the Anti-Thesis critique.
-     * Produces the high-level executive report for the user.
-     */
-    fun reconcileFinalStrategy(thesis: List<Recommendation>, antiThesis: String): StrategyReport
 }
