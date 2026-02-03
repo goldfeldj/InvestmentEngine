@@ -5,7 +5,6 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.Assertions.*
 
 class OrchestrationTest {
-
     private val parser = YamlParserService()
     private val configPath = "src/main/resources/orchestration.yaml"
 
@@ -15,7 +14,7 @@ class OrchestrationTest {
 
         // Test Phase Existence
         assertTrue(config.phases.containsKey("macro_phase"))
-        assertTrue(config.phases.containsKey("anti_thesis"))
+        assertTrue(config.phases.containsKey("anti_thesis_phase"))
 
         // Test snake_case to camelCase for research_depth
         val macro = config.phases["macro_phase"]!!
@@ -28,7 +27,7 @@ class OrchestrationTest {
         val config: OrchestrationConfig = parser.parseConfig(configPath)
 
         // Anti-thesis uses primary_model, not models list
-        val antiThesis = config.phases["anti_thesis"]!!
+        val antiThesis = config.phases["anti_thesis_phase"]!!
         assertEquals("CLAUDE_3_5", antiThesis.models.first())
     }
 
@@ -37,7 +36,7 @@ class OrchestrationTest {
         val config: OrchestrationConfig = parser.parseConfig(configPath)
 
         // Chairman phase does not have a reconciliation property in YAML
-        val chairman = config.phases["chairman"]!!
+        val chairman = config.phases["chairman_phase"]!!
         assertNull(chairman.reconciliation)
         assertEquals("GEMINI_3_FLASH", chairman.models.first())
     }

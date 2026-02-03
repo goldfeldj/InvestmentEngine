@@ -1,12 +1,14 @@
 package com.engine.service
 
 import com.engine.model.*
+import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.fasterxml.jackson.module.kotlin.readValue
 import java.io.File
 import org.springframework.stereotype.Service
+import java.io.FileNotFoundException
 
 @Service
 class YamlParserService {
@@ -14,11 +16,24 @@ class YamlParserService {
     val mapper = ObjectMapper(YAMLFactory()).apply {
         registerModule(KotlinModule.Builder().build())
         registerModule(com.fasterxml.jackson.datatype.jsr310.JavaTimeModule())
-        setPropertyNamingStrategy(com.fasterxml.jackson.databind.PropertyNamingStrategies.SNAKE_CASE)
+        propertyNamingStrategy = com.fasterxml.jackson.databind.PropertyNamingStrategies.SNAKE_CASE
         // Ensure we don't write nulls to the YAML to keep it clean
         setSerializationInclusion(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL)
         // Important: Disable writing dates as timestamps so we get "2026-02-03"
         configure(com.fasterxml.jackson.databind.SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
+        configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+    }
+
+    /**
+     * Loads the Orchestration Rules (Models, Depth, Phases).
+     * @param path Relative or absolute path to orchestration.yaml
+     */
+    fun parseOrchestration(path: String): OrchestrationConfig {
+        val file = File(path)
+        if (!file.exists()) {
+            throw FileNotFoundException("Orchestration config not found at: ${file.absolutePath}")
+        }
+        return mapper.readValue(file)
     }
 
     /**

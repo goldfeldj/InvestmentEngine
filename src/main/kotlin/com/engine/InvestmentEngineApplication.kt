@@ -1,32 +1,52 @@
 package com.engine
 
-import com.engine.orchestrator.ModelChainOrchestrator
-import com.engine.service.YamlParserService
+import com.engine.service.ModelChainOrchestrator
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import org.springframework.boot.CommandLineRunner
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
+import java.io.File
 import java.time.LocalDate
 
 @SpringBootApplication
 class InvestmentEngineApplication(
-    private val orchestrator: ModelChainOrchestrator,
-    private val yamlParser: YamlParserService
+    private val orchestrator: ModelChainOrchestrator
 ) : CommandLineRunner {
     override fun run(vararg args: String?) {
-        println("🚀 Starting Investment Engine Weekly Audit...")
+        try {
+            println("==========================================")
+            println("   AI INVESTMENT ENGINE - WEEKLY AUDIT    ")
+            println("==========================================")
 
-        // 1. Load your actual assets
-        val portfolio = yamlParser.parsePortfolio("src/main/resources/assets.yaml")
+            // 1. Define the 'Effective Date' (Usually Today)
+            val today = LocalDate.now()
 
-        // 2. Execute the chain for 'today'
-        val updatedPortfolio = orchestrator.execute(portfolio, LocalDate.now())
+            // 2. Trigger the Orchestrator
+            // This runs the full pipeline: YAML -> Macro -> Auditor -> Critic -> Chairman
+            val result = orchestrator.runWeeklyAudit(today)
 
-        // 3. Output/Save results
-        println("✅ Audit Complete.")
-        println("New Total Value: ${updatedPortfolio.wallets.sumOf { it.amount }}")
+            // 3. Display Results
+            println("\n✅ AUDIT COMPLETE")
+            println("------------------------------------------")
+            println("Net Worth: ${result.totalNetWorthBaseCurrency}")
+            println("Risk Level: ${result.strategy.riskAssessment}")
+            println("Executive Dilemma: ${result.strategy.executiveDilemma}")
+            println("\n--- Recommendations ---")
+            result.strategy.finalRecommendations.forEach { rec ->
+                println(" > [${rec.actionType}] ${rec.assetTicker}: ${rec.rationale} (Urgency: ${rec.urgencyScore}/10)")
+            }
 
-        // Optional: Save the state back to a result file
-        yamlParser.savePortfolio(updatedPortfolio, "outputs/latest_audit_results.yaml")
+            // 4. Save Artifact (JSON Report)
+            val mapper = jacksonObjectMapper().findAndRegisterModules()
+            val outputFile = File("outputs/audit_report_${today}.json")
+            outputFile.parentFile.mkdirs()
+            mapper.writerWithDefaultPrettyPrinter().writeValue(outputFile, result)
+            println("\n📄 Full report saved to: ${outputFile.absolutePath}")
+
+        } catch (e: Exception) {
+            System.err.println("❌ CRITICAL ENGINE FAILURE")
+            e.printStackTrace()
+        }
     }
 }
 
