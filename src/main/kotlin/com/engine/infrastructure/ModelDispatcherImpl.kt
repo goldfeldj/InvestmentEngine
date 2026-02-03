@@ -1,6 +1,8 @@
 package com.engine.infrastructure
 
+import com.engine.infrastructure.deepseek.DeepSeekClient
 import com.engine.infrastructure.gemini.GeminiClient
+import com.engine.infrastructure.openai.OpenAiClient
 import com.engine.service.ModelDispatcher
 import org.springframework.stereotype.Service
 
