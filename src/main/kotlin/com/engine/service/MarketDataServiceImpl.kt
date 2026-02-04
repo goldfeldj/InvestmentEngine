@@ -60,27 +60,39 @@ class MarketDataServiceImpl(
     }
 
     private fun fetchFmpPrice(ticker: String): BigDecimal {
-        val response = fmpClient.get()
-            .uri("/quote/$ticker?apikey=$fmpKey")
-            .retrieve()
-            .body(List::class.java) as List<Map<String, Any>>
-        return BigDecimal(response[0]["price"].toString())
+        val data = getFirstRecord(fmpClient, "/quote/$ticker?apikey=$fmpKey")
+        return data["price"]?.toString()?.toBigDecimal()
+            ?: throw RuntimeException("No price field found for $ticker")
     }
 
     private fun fetchTiingoHistorical(ticker: String, date: LocalDate): BigDecimal {
-        val response = tiingoClient.get()
-            .uri("/daily/$ticker/prices?startDate=$date&endDate=$date")
-            .header("Authorization", "Token $tiingoKey")
-            .retrieve()
-            .body(List::class.java) as List<Map<String, Any>>
-        return BigDecimal(response[0]["adjClose"].toString())
+        val data = getFirstRecord(tiingoClient, "/daily/$ticker/prices?startDate=$date&endDate=$date", tiingoKey)
+        // Tiingo historical uses 'adjClose'
+        return data["adjClose"]?.toString()?.toBigDecimal()
+            ?: throw RuntimeException("No historical price found for $ticker on $date")
     }
 
     private fun fetchFmpForex(from: String, to: String): BigDecimal {
-        val response = fmpClient.get()
-            .uri("/fx/${from}${to}?apikey=$fmpKey")
-            .retrieve()
-            .body(List::class.java) as List<Map<String, Any>>
-        return BigDecimal(response[0]["bid"].toString())
+        val data = getFirstRecord(fmpClient, "/fx/$from$to?apikey=$fmpKey")
+        return data["bid"]?.toString()?.toBigDecimal()
+            ?: throw RuntimeException("No forex rate found for $from$to")
+    }
+
+    /**
+     * Helper to safely extract the first record from a list-based API response.
+     */
+    private fun getFirstRecord(client: RestClient, uri: String, token: String? = null): Map<String, Any> {
+        val request = client.get().uri(uri)
+        if (token != null) request.header("Authorization", "Token $token")
+
+        val response = request.retrieve().body(List::class.java) as? List<*>
+
+        if (response.isNullOrEmpty()) {
+            throw RuntimeException("API returned no data for URI: $uri")
+        }
+
+        @Suppress("UNCHECKED_CAST")
+        return response[0] as? Map<String, Any>
+            ?: throw RuntimeException("API response format error at URI: $uri")
     }
 }
