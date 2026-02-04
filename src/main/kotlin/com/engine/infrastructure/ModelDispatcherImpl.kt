@@ -51,7 +51,7 @@ class ModelDispatcherImpl(
     }
 
     private fun mapToGeminiId(model: String) = when {
-        model.contains("FLASH") -> "gemini-3-flash"
+        model.contains("FLASH") -> "gemini-2.5-flash"
         else -> "gemini-3-pro"
     }
 

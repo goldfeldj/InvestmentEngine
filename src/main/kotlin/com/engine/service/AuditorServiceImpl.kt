@@ -8,7 +8,7 @@ import java.time.LocalDate
 @Service
 class AuditorServiceImpl(private val dispatcher: ModelDispatcher): AuditorService {
     companion object {
-        private const val DEFAULT_MODEL_AUDITOR = "GEMINI_3_FLASH"
+        private const val DEFAULT_MODEL_AUDITOR = "GEMINI_2.5_FLASH"
         private const val DEFAULT_DEPTH_AUDITOR = 5
     }
 
@@ -21,6 +21,7 @@ class AuditorServiceImpl(private val dispatcher: ModelDispatcher): AuditorServic
         val model = config?.models?.firstOrNull() ?: DEFAULT_MODEL_AUDITOR
         val depth = config?.researchDepth ?: DEFAULT_DEPTH_AUDITOR
 
+        // TODO: Add "LIVE MARKET DATA:" + assets' actual values
         val systemInstruction = """
         STRICT DATE LOCK: Today is $date.
         ROLE: Senior Portfolio Auditor. 
@@ -34,7 +35,7 @@ class AuditorServiceImpl(private val dispatcher: ModelDispatcher): AuditorServic
         Deep-dive into the assets and justify every move based only on data available on $date.
         OUTPUT REQUIREMENTS:
         1. Executive Summary: 2-sentence 'State of the Union'.
-        2. Asset Deep-Dive: Justify every 'Hold/Sell/Buy' with data from $date.
+        2. Asset Deep-Dive: Justify every 'Hold/Sell/Buy' with data from $date. Per Sell/Buy Recommendation, suggest an actual portion from the holding. For the suggested buy/sell portion, express as [percentage of shares, number of shares, value of shares] 
         3. Critical Vulnerabilities: Explicitly list 3 reasons this portfolio might fail.
     """.trimIndent()
 

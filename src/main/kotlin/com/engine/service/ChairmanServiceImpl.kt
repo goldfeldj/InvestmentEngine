@@ -8,7 +8,7 @@ import java.time.LocalDate
 @Service
 class ChairmanServiceImpl(private val dispatcher: ModelDispatcher): ChairmanService {
     companion object {
-        private const val DEFAULT_MODEL_CHAIRMAN = "GEMINI_1_5_PRO" // Prefer a smarter model for synthesis
+        private const val DEFAULT_MODEL_CHAIRMAN = "GEMINI_3_PRO" // Prefer a smarter model for synthesis
         private const val DEFAULT_DEPTH_CHAIRMAN = 7
     }
 

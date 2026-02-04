@@ -8,7 +8,7 @@ import java.time.LocalDate
 class AntiThesisServiceImpl(private val dispatcher: ModelDispatcher): AntiThesisService {
     companion object {
         // Default Model Constants
-        private const val DEFAULT_MODEL_ANTI_THESIS = "GEMINI_3_FLASH"
+        private const val DEFAULT_MODEL_ANTI_THESIS = "GEMINI_2.5_FLASH"
         private const val DEFAULT_DEPTH_ANTI_THESIS = 3
     }
 

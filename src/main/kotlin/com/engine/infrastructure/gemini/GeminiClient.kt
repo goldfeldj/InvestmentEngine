@@ -12,12 +12,12 @@ import org.springframework.stereotype.Component
  */
 @Component
 class GeminiClient(private val client: Client) {
-
     fun prompt(modelName: String, prompt: String, depth: Int): String {
 
         // Linear Mapping: Depth 1 = 3200, Depth 10 = 32000
         // We ensure the value is at least 0.
         val calculatedBudget = (depth * 3200).coerceAtLeast(0)
+        val totalLimit = calculatedBudget + (depth * 2000)
 
         val thinkingConfig = ThinkingConfig.builder()
             .includeThoughts(false)
@@ -27,7 +27,7 @@ class GeminiClient(private val client: Client) {
             .build()
 
         val config = GenerateContentConfig.builder()
-            .maxOutputTokens(depth * 1000) // Your response token limit
+            .maxOutputTokens(totalLimit) // Your response token limit
             .temperature(1.0f - (depth * 0.08f))
             .thinkingConfig(thinkingConfig)
             .build()
