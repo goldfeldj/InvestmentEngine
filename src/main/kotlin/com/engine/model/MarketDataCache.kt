@@ -27,4 +27,4 @@ data class MarketDataCache(
     val updatedAt: LocalDate = LocalDate.now()
 )
 
-enum class DataType { PRICE, FX }
+enum class DataType { PRICE, FX, COMMODITY }

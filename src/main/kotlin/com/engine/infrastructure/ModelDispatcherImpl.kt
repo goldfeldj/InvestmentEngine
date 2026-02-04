@@ -21,6 +21,10 @@ class ModelDispatcherImpl(
     ): String {
         val upperModel = model.uppercase()
 
+        // TODO: Adjust prompts to:
+        // - Suggest actions on tickers/FX outside assets
+        // - Handle ticker decommission (simpler: handle only tickers existing today, even when simulating history) (alert if in Assets + disregard, identify exit event and add to cash when scanning history)
+        // - Add commodities (yamls, prompt, etc.)
         return try {
             when {
                 // Google Gemini 3 Series
