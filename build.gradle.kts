@@ -72,6 +72,16 @@ dependencies {
 	implementation("com.openai:openai-java:0.1.0-beta.10") // Or the current stable 4.x/5.x
 	implementation("com.squareup.okhttp3:okhttp:4.12.0")
 	implementation("com.openai:openai-java:4.17.0")
+
+	implementation("org.springframework.boot:spring-boot-starter-web") // Provides RestClient
+
+	// This includes jakarta.persistence automatically
+	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+
+	// Ensure you have the SQLite driver for the runtime
+	implementation("org.hibernate.orm:hibernate-community-dialects:6.4.4.Final")
+	implementation("org.xerial:sqlite-jdbc:3.45.1.0")
+	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
 }
 
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
