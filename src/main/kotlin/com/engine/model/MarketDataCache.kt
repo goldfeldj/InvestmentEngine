@@ -12,11 +12,15 @@ data class MarketDataCache(
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long? = null,
 
+    @Column(nullable = false, unique = true)
     val ticker: String,
+    @Column(nullable = false)
     val date: LocalDate,
+    @Column(nullable = false)
     val value: BigDecimal,
 
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     val type: DataType, // PRICE or FX
 
     val provider: String,
