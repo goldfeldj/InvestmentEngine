@@ -12,7 +12,7 @@ interface InvestmentOrchestrator {
      * Executes the standard weekly trigger flow.
      * Fetches current prices, runs AI consensus, and outputs recommendations.
      */
-    fun runWeeklyAudit(date: LocalDate): AuditResult
+    fun runWeeklyAudit(date: LocalDate): AuditResult?
 
     /**
      * Executes a historical simulation from [startDate] for [months].

@@ -16,7 +16,7 @@ class MarketDataServiceImpl(
     @Value("\${tiingo.api.key}") private val tiingoKey: String
 ) : MarketDataService {
 
-    private val fmpClient = RestClient.create("https://financialmodelingprep.com/api/v3")
+    private val fmpClient = RestClient.create("https://financialmodelingprep.com/stable")
     private val tiingoClient = RestClient.create("https://api.tiingo.com/tiingo")
 
     override fun getPrice(ticker: String, date: LocalDate?): BigDecimal {
@@ -60,7 +60,7 @@ class MarketDataServiceImpl(
     }
 
     private fun fetchFmpPrice(ticker: String): BigDecimal {
-        val data = getFirstRecord(fmpClient, "/quote/$ticker?apikey=$fmpKey")
+        val data = getFirstRecord(fmpClient, "/quote-short?symbol=$ticker&apikey=$fmpKey")
         return data["price"]?.toString()?.toBigDecimal()
             ?: throw RuntimeException("No price field found for $ticker")
     }

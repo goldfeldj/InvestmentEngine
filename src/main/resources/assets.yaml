@@ -17,10 +17,10 @@ private_portfolio:
     shares: 45
     cost_basis: 110.50
     # currency: "USD" # (Optional: defaults to metadata.default_ticker_currency)
-  - ticker: "ICL.TA"
-    shares: 1000
-    cost_basis: 15.40
-    currency: "ILS"
+#  - ticker: "OPRA"
+#    shares: 1000
+#    cost_basis: 5.33
+#    currency: "USD"
 
 # Retirement funds with track/proxy modeling
 pension_funds:
