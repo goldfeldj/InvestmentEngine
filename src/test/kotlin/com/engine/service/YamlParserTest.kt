@@ -16,9 +16,9 @@ class YamlParserTest {
         val nvda = portfolio.privatePortfolio?.find { it.ticker == "NVDA" }
         assertEquals("USD", nvda?.currency)
 
-        // ICL.TA has explicit "ILS" in YAML -> should stay "ILS"
-        val icl = portfolio.privatePortfolio?.find { it.ticker == "ICL.TA" }
-        assertEquals("ILS", icl?.currency)
+        // OPRA has explicit "USD" in YAML -> should stay "USD"
+        val opra = portfolio.privatePortfolio?.find { it.ticker == "OPRA" }
+        assertEquals("USD", opra?.currency)
     }
 
     @Test

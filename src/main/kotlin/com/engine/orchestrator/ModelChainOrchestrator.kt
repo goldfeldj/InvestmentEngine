@@ -14,7 +14,7 @@ class ModelChainOrchestrator(
     private val yamlParser: YamlParserService
 ) : InvestmentOrchestrator { // Implementing the interface
 
-    override fun runWeeklyAudit(date: LocalDate): AuditResult? {
+    override fun runWeeklyAudit(date: LocalDate): AuditResult {
         println("--- Starting Weekly Audit for $date ---")
 
         // 1. DATA INGESTION: Load the raw static definition
@@ -26,8 +26,6 @@ class ModelChainOrchestrator(
         // (Crucial so the AI knows if '10 NVDA' is worth $1k or $10k)
         val currentPrices = fetchAssetPrices(rawPortfolio, date)
         val totalNetWorth = calculateNetWorth(rawPortfolio, currentPrices)
-
-        return null
 
         // We create a "Rich Context" string so the AI sees the actual $ values, not just share counts
         val portfolioContext = generateContextWithValues(rawPortfolio, currentPrices, totalNetWorth)

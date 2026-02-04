@@ -31,15 +31,15 @@ class InvestmentEngineApplication(
             val result = orchestrator.runWeeklyAudit(today)
 
             // 3. Display Results
-//            println("\n✅ AUDIT COMPLETE")
-//            println("------------------------------------------")
-//            println("Net Worth: ${result.totalNetWorthBaseCurrency}")
-//            println("Risk Level: ${result.strategy.riskAssessment}")
-//            println("Executive Dilemma: ${result.strategy.executiveDilemma}")
-//            println("\n--- Recommendations ---")
-//            result.strategy.finalRecommendations.forEach { rec ->
-//                println(" > [${rec.actionType}] ${rec.assetTicker}: ${rec.rationale} (Urgency: ${rec.urgencyScore}/10)")
-//            }
+            println("\n✅ AUDIT COMPLETE")
+            println("------------------------------------------")
+            println("Net Worth: ${result.totalNetWorthBaseCurrency}")
+            println("Risk Level: ${result.strategy.riskAssessment}")
+            println("Executive Dilemma: ${result.strategy.executiveDilemma}")
+            println("\n--- Recommendations ---")
+            result.strategy.finalRecommendations.forEach { rec ->
+                println(" > [${rec.actionType}] ${rec.assetTicker}: ${rec.rationale} (Urgency: ${rec.urgencyScore}/10)")
+            }
 
             // 4. Save Artifact (JSON Report)
             val mapper = jacksonObjectMapper().findAndRegisterModules()
