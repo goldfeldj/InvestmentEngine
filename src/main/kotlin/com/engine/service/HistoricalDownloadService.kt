@@ -26,14 +26,15 @@ class HistoricalDownloadService(
      */
     fun performFullSystemSync() {
         // 1. Sync Tickers
-//        val nasdaqList = fetchNasdaqTickerList()
-//        if (nasdaqList.isNotEmpty()) {
-//            syncNasdaqTickers(nasdaqList)
-//        }
+        val nasdaqList = fetchNasdaqTickerList()
+        if (nasdaqList.isNotEmpty()) {
+            syncNasdaqTickers(nasdaqList)
+        }
 
         // 2. Sync Forex & Precious Metals
         syncForex()
         syncCommodities()
+
         printSummaryReport()
     }
 
@@ -166,8 +167,10 @@ class HistoricalDownloadService(
 
     fun syncCommodities() {
         val commoditySymbols = listOf(
-            "XAUUSD=X", "XAGUSD=X", "PL=F", "PA=F", "HG=F",
-            "CL=F", "BZ=F", "NG=F", "GC=F", "SI=F"
+//            "GC=F", "SI=F",
+//            "PL=F", "PA=F", "HG=F",
+//            "CL=F", "BZ=F", "NG=F",
+            "RB=F", "HO=F"
         )
 
         println("🔍 Discovering Commodity start dates...")
