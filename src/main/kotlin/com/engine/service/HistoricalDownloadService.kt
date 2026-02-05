@@ -1,8 +1,6 @@
 package com.engine.service
 
 import org.springframework.stereotype.Service
-import java.io.BufferedReader
-import java.io.InputStreamReader
 import java.net.HttpURLConnection
 import java.net.URL
 import java.io.File
@@ -16,7 +14,8 @@ import java.time.ZoneOffset
 @Service
 class HistoricalDownloadService(
     private val tickerDbPath: String = "./data/tickers_history.db",
-    private val forexDbPath: String = "./data/forex_history.db"
+    private val forexDbPath: String = "./data/forex_history.db",
+    private val commoditiesDbPath: String = "./data/commodities_history.db"
 ) {
     // Tracking for summary report
     private val failedTickers = mutableMapOf<String, LocalDate>()
@@ -27,13 +26,14 @@ class HistoricalDownloadService(
      */
     fun performFullSystemSync() {
         // 1. Sync Tickers
-        val nasdaqList = fetchNasdaqTickerList()
-        if (nasdaqList.isNotEmpty()) {
-            syncNasdaqTickers(nasdaqList)
-        }
+//        val nasdaqList = fetchNasdaqTickerList()
+//        if (nasdaqList.isNotEmpty()) {
+//            syncNasdaqTickers(nasdaqList)
+//        }
 
         // 2. Sync Forex & Precious Metals
-        syncForexAndMetals()
+        syncForex()
+        syncCommodities()
         printSummaryReport()
     }
 
@@ -113,26 +113,23 @@ class HistoricalDownloadService(
         } else emptyList()
     }
 
-    fun getFirstTradeDate(symbol: String): LocalDate? {
-        val url = "https://query1.finance.yahoo.com/v8/finance/chart/$symbol?interval=1d&range=1d"
-
+    private fun getFirstTradeDate(symbol: String): LocalDate {
         return try {
+            // Request a tiny range just to get the 'meta' block
+            val url = "https://query1.finance.yahoo.com/v8/finance/chart/$symbol?interval=1d&range=1d"
             val connection = URL(url).openConnection() as HttpURLConnection
             connection.setRequestProperty("User-Agent", "Mozilla/5.0")
 
-            val response = connection.inputStream.bufferedReader().readText()
-
-            // Manual JSON parsing or use a library like Jackson/Gson
-            // We're looking for: "firstTradeDate": 345456000
-            val regex = "\"firstTradeDate\":(\\d+)".toRegex()
-            val match = regex.find(response)
-
-            match?.groupValues?.get(1)?.toLong()?.let { timestamp ->
-                Instant.ofEpochSecond(timestamp).atZone(ZoneOffset.UTC).toLocalDate()
+            if (connection.responseCode == HttpURLConnection.HTTP_OK) {
+                val response = connection.inputStream.bufferedReader().readText()
+                val match = "\"firstTradeDate\":(\\d+)".toRegex().find(response)
+                match?.groupValues?.get(1)?.toLongOrNull()?.let {
+                    return Instant.ofEpochSecond(it).atZone(ZoneOffset.UTC).toLocalDate()
+                }
             }
+            LocalDate.now().minusYears(30) // Fallback if meta is missing
         } catch (e: Exception) {
-            println("⚠️ Could not fetch inception date for $symbol: ${e.message}")
-            null
+            LocalDate.now().minusYears(30) // Fallback on connection error
         }
     }
 
@@ -145,16 +142,42 @@ class HistoricalDownloadService(
     }
 
     /**
-     * Entry point: Synchronize Forex & Precious Metals.
+     * Entry point: Synchronize Forex
      * Yahoo Finance uses specific suffixes for FX (e.g., "ILS=X", "XAUUSD=X").
      */
-    fun syncForexAndMetals() { // TODO: expand list. What does "ILS=X" mean? Metals?
-        // High-quality major pairs + metals
-//        val forexSymbols = listOf(
-//            "EURUSD=X", "JPY=X", "GBPUSD=X", "ILS=X", "CHF=X", "CAD=X",
-//            "AUDUSD=X", "NZDUSD=X", "XAUUSD=X", "XAGUSD=X"
-//        )
-//        executeSync(forexDbPath, forexSymbols)
+    fun syncForex() {
+        val forexSymbols = listOf(
+            "EURUSD=X", "USDJPY=X", "GBPUSD=X", "USDCHF=X", "AUDUSD=X", "USDCAD=X", "NZDUSD=X",
+            "EURGBP=X", "EURJPY=X", "GBPJPY=X", "EURCHF=X", "EURCAD=X", "EURAUD=X", "GBPAUD=X",
+            "CADJPY=X", "AUDJPY=X", "NZDJPY=X", "CHFJPY=X", "GBPCHF=X", "GBPCAD=X",
+            "ILS=X", "USDHKD=X", "USDSGD=X", "USDMXN=X", "USDTRY=X",
+            "USDCNY=X", "USDINR=X", "USDBRL=X", "USDZAR=X", "USDKRW=X"
+        )
+
+        println("🔍 Discovering Forex start dates...")
+        val symbolsWithDates = forexSymbols.map { symbol ->
+            val startDate = getFirstTradeDate(symbol)
+            println("📍 $symbol: Available since $startDate")
+            symbol to startDate
+        }
+
+        executeSync(forexDbPath, symbolsWithDates)
+    }
+
+    fun syncCommodities() {
+        val commoditySymbols = listOf(
+            "XAUUSD=X", "XAGUSD=X", "PL=F", "PA=F", "HG=F",
+            "CL=F", "BZ=F", "NG=F", "GC=F", "SI=F"
+        )
+
+        println("🔍 Discovering Commodity start dates...")
+        val symbolsWithDates = commoditySymbols.map { symbol ->
+            val startDate = getFirstTradeDate(symbol)
+            println("📍 $symbol: Available since $startDate")
+            symbol to startDate
+        }
+
+        executeSync(commoditiesDbPath, symbolsWithDates)
     }
 
     private fun executeSync(dbPath: String, symbols: List<Pair<String, LocalDate>>) {
@@ -233,35 +256,41 @@ class HistoricalDownloadService(
 
     private fun fetchYahooCsv(symbol: String, start: LocalDate, end: LocalDate): List<MarketRow> {
         val p1 = start.atStartOfDay(ZoneOffset.UTC).toEpochSecond()
-        val p2 = end.atStartOfDay(ZoneOffset.UTC).toEpochSecond()
+        val p2 = minOf(end.atStartOfDay(ZoneOffset.UTC).toEpochSecond(), LocalDate.now().minusDays(1).atStartOfDay(ZoneOffset.UTC).toEpochSecond())
 
         // Yahoo Finance v7 download endpoint
-        val urlString = "https://query1.finance.yahoo.com/v7/finance/download/$symbol?period1=$p1&period2=$p2&interval=1d&events=history&includeAdjustedClose=true"
+        val urlString = "https://query1.finance.yahoo.com/v8/finance/chart/$symbol?period1=$p1&period2=$p2&interval=1d"
 
         val connection = URL(urlString).openConnection() as HttpURLConnection
         // 1. Enhanced Headers
         connection.requestMethod = "GET"
-        connection.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36")
-        connection.setRequestProperty("Accept", "text/csv,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8")
-        connection.setRequestProperty("Accept-Language", "en-US,en;q=0.5")
-        connection.setRequestProperty("Connection", "keep-alive")
-        connection.setRequestProperty("Upgrade-Insecure-Requests", "1")
+        connection.setRequestProperty("User-Agent", "Mozilla/5.0")
 
         if (connection.responseCode != 200) throw Exception("HTTP ${connection.responseCode}: ${connection.responseMessage}")
 
         val rows = mutableListOf<MarketRow>()
 
         if (connection.responseCode == HttpURLConnection.HTTP_OK) {
-            BufferedReader(InputStreamReader(connection.inputStream)).use { reader ->
-                reader.readLine() // Skip header: Date,Open,High,Low,Close,Adj Close,Volume
-                reader.forEachLine { line ->
-                    val cols = line.split(",")
-                    if (cols.size >= 7 && cols[1] != "null") {
+            val response = connection.inputStream.bufferedReader().readText()
+
+            // Regex patterns to extract the arrays from the JSON structure
+            val timestamps = "\"timestamp\":\\[(.*?)\\]".toRegex().find(response)?.groupValues?.get(1)?.split(",")
+            val opens = "\"open\":\\[(.*?)\\]".toRegex().find(response)?.groupValues?.get(1)?.split(",")
+            val closes = "\"close\":\\[(.*?)\\]".toRegex().find(response)?.groupValues?.get(1)?.split(",")
+            val volumes = "\"volume\":\\[(.*?)\\]".toRegex().find(response)?.groupValues?.get(1)?.split(",")
+
+            if (timestamps != null && opens != null && closes != null && volumes != null) {
+                for (i in timestamps.indices) {
+                    // v8 uses nulls for holidays/gaps; we skip them just like your CSV logic did
+                    if (i < opens.size && i < closes.size && i < volumes.size &&
+                        opens[i] != "null" && closes[i] != "null" && volumes[i] != "null") {
+
                         rows.add(MarketRow(
-                            date = LocalDate.parse(cols[0]),
-                            open = cols[1].toDouble(),
-                            close = cols[4].toDouble(), // Using 'Close' (use index 5 for 'Adj Close')
-                            volume = cols[6].toLong()
+                            date = Instant.ofEpochSecond(timestamps[i].toLong())
+                                .atZone(ZoneOffset.UTC).toLocalDate(),
+                            open = opens[i].toDouble(),
+                            close = closes[i].toDouble(),
+                            volume = volumes[i].toLongOrNull() ?: 0L
                         ))
                     }
                 }
