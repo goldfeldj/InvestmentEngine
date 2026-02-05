@@ -120,7 +120,7 @@ class HistoricalDownloadService(
         val symbols = mutableListOf<String>()
         // Using the Stock Screener endpoint to filter specifically for NYSE
         // limit=10000 ensures we get the full list (NYSE has ~2400-3000 typically)
-        val urlString = "https://financialmodelingprep.com/api/v3/stock-screener?exchange=NYSE&limit=10000&apikey=$FMP_API_KEY"
+        val urlString = "https://financialmodelingprep.com/api/v3/stock-screener?exchange=NYSE&limit=10000&apikey=$fmpApiKey"
 
         try {
             println("📥 Fetching NYSE symbol list from FMP...")
