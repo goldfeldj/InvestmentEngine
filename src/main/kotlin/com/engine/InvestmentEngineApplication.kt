@@ -1,5 +1,6 @@
 package com.engine
 
+import com.engine.service.HistoricalDownloadService
 import com.engine.service.ModelChainOrchestrator
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import org.springframework.boot.CommandLineRunner
@@ -15,9 +16,13 @@ import java.time.LocalDate
     ]
 )
 class InvestmentEngineApplication(
-    private val orchestrator: ModelChainOrchestrator
+    private val orchestrator: ModelChainOrchestrator,
+    private val historicalDownloadService: HistoricalDownloadService
 ) : CommandLineRunner {
     override fun run(vararg args: String?) {
+        historicalDownloadService.performFullSystemSync()
+        return
+
         try {
             println("==========================================")
             println("   AI INVESTMENT ENGINE - WEEKLY AUDIT    ")

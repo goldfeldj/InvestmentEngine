@@ -1,11 +1,13 @@
 package com.engine.infrastructure.gemini
 
 import com.engine.infrastructure.configuration.AppConfig
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.ActiveProfiles
 
+@Disabled("heavy call to model; enable by demand")
 @SpringBootTest(classes = [GeminiClient::class, AppConfig::class]) // Only load what you need
 @ActiveProfiles("test")
 class GeminiClientTest {
