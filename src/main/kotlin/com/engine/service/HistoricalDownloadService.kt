@@ -13,9 +13,11 @@ import java.time.ZoneOffset
 
 @Service
 class HistoricalDownloadService(
-    private val tickerDbPath: String = "./data/tickers_history.db",
+    private val nasdaqDbPath: String = "./data/tickers_history.db",
+    private val nyseDbPath: String = "./data/nyse_tickers_history.db",
     private val forexDbPath: String = "./data/forex_history.db",
-    private val commoditiesDbPath: String = "./data/commodities_history.db"
+    private val commoditiesDbPath: String = "./data/commodities_history.db",
+    private val fmpApiKey: String = "rAdZOxyWt2Om8MzsZeE3PMQ3mnA8dy13"
 ) {
     // Tracking for summary report
     private val failedTickers = mutableMapOf<String, LocalDate>()
@@ -25,15 +27,15 @@ class HistoricalDownloadService(
      * Unified run function to perform a full system sync
      */
     fun performFullSystemSync() {
-        // 1. Sync Tickers
-        val nasdaqList = fetchNasdaqTickerList()
-        if (nasdaqList.isNotEmpty()) {
-            syncNasdaqTickers(nasdaqList)
-        }
+        // 1. Sync Nasdaq Tickers (Uses FTP -> XML -> Yahoo)
+//        syncNasdaqTickers()
 
-        // 2. Sync Forex & Precious Metals
-        syncForex()
-        syncCommodities()
+        // 1. Sync Nyse Tickers (Uses FMP -> Yahoo Discovery -> Yahoo)
+        syncNyse()
+
+        // 2. Sync Forex & Commodities (Hardcoded List -> Yahoo Discovery -> Yahoo)
+//        syncForex()
+//        syncCommodities()
 
         printSummaryReport()
     }
@@ -92,7 +94,7 @@ class HistoricalDownloadService(
                 cacheFile.parentFile.mkdirs()
                 PrintWriter(cacheFile).use { out ->
                     symbols.forEachIndexed { index, symbol ->
-                        val firstTradeDate = getFirstTradeDate(symbol) ?: LocalDate.parse("1900-01-01")
+                        val firstTradeDate = getFirstTradeDate(symbol)
                         out.println("$symbol,$firstTradeDate")
 
                         if ((index + 1) % 100 == 0) println("⏳ Processed ${index + 1}/${symbols.size} tickers...")
@@ -114,6 +116,69 @@ class HistoricalDownloadService(
         } else emptyList()
     }
 
+    private fun fetchNyseTickerList(): List<String> {
+        val symbols = mutableListOf<String>()
+        // Using the Stock Screener endpoint to filter specifically for NYSE
+        // limit=10000 ensures we get the full list (NYSE has ~2400-3000 typically)
+        val urlString = "https://financialmodelingprep.com/api/v3/stock-screener?exchange=NYSE&limit=10000&apikey=$FMP_API_KEY"
+
+        try {
+            println("📥 Fetching NYSE symbol list from FMP...")
+            val connection = URL(urlString).openConnection() as HttpURLConnection
+            connection.requestMethod = "GET"
+
+            if (connection.responseCode == HttpURLConnection.HTTP_OK) {
+                val response = connection.inputStream.bufferedReader().readText()
+
+                // Simple Regex to extract symbols from JSON: [{"symbol":"MMM",...}, {"symbol":"T",...}]
+                val regex = "\"symbol\"\\s*:\\s*\"([^\"]+)\"".toRegex()
+                regex.findAll(response).forEach { matchResult ->
+                    var sym = matchResult.groupValues[1]
+
+                    // DATA CLEANING:
+                    // FMP might return "BRK-B", Yahoo wants "BRK-B". Usually they match.
+                    // If FMP returns dots (BRK.B), replace with hyphen for Yahoo compatibility.
+                    sym = sym.replace(".", "-")
+
+                    symbols.add(sym)
+                }
+                println("✅ Found ${symbols.size} NYSE tickers.")
+            } else {
+                println("❌ FMP Error: HTTP ${connection.responseCode} - ${connection.responseMessage}")
+            }
+        } catch (e: Exception) {
+            println("❌ Failed to fetch NYSE list: ${e.message}")
+        }
+        return symbols
+    }
+
+    fun syncNyse() {
+        // 1. Get the list (Costs 1 FMP Credit)
+        val symbols = fetchNyseTickerList()
+
+        if (symbols.isEmpty()) {
+            println("⚠️ No symbols found. Check your FMP API Key.")
+            return
+        }
+
+        // 2. Discovery Phase (Hit Yahoo metadata to find start dates)
+        println("🔍 Discovering NYSE start dates (This may take a moment)...")
+
+        // Optional: Use parallelStream() here if you want it faster,
+        // but sequential is safer for rate limits.
+        val symbolsWithDates = symbols.mapIndexed { index, symbol ->
+            if (index % 100 == 0) println("...checked $index/${symbols.size}")
+
+            // Reuse your existing discovery logic
+            val startDate = getFirstTradeDate(symbol)
+            symbol to startDate
+        }
+
+        // 3. Execution Phase
+        println("🚀 Starting NYSE History Sync (${symbolsWithDates.size} tickers)...")
+        executeSync(nyseDbPath, symbolsWithDates)
+    }
+
     private fun getFirstTradeDate(symbol: String): LocalDate {
         return try {
             // Request a tiny range just to get the 'meta' block
@@ -128,9 +193,9 @@ class HistoricalDownloadService(
                     return Instant.ofEpochSecond(it).atZone(ZoneOffset.UTC).toLocalDate()
                 }
             }
-            LocalDate.now().minusYears(30) // Fallback if meta is missing
+            LocalDate.parse("1900-01-01") // Fallback if meta is missing
         } catch (e: Exception) {
-            LocalDate.now().minusYears(30) // Fallback on connection error
+            LocalDate.parse("1900-01-01") // Fallback on connection error
         }
     }
 
@@ -138,8 +203,11 @@ class HistoricalDownloadService(
      * Entry point: Synchronize Nasdaq Tickers.
      * Starts from the last saved date in DB or 30 years ago.
      */
-    fun syncNasdaqTickers(symbols: List<Pair<String, LocalDate>>) {
-        executeSync(tickerDbPath, symbols)
+    fun syncNasdaqTickers() {
+        val symbols = fetchNasdaqTickerList()
+        if (symbols.isNotEmpty()) {
+            executeSync(nasdaqDbPath, symbols)
+        }
     }
 
     /**

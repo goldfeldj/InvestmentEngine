@@ -20,8 +20,8 @@ class InvestmentEngineApplication(
     private val historicalDownloadService: HistoricalDownloadService
 ) : CommandLineRunner {
     override fun run(vararg args: String?) {
-//        historicalDownloadService.performFullSystemSync()
-//        return
+        historicalDownloadService.performFullSystemSync()
+        return
 
         try {
             println("==========================================")
